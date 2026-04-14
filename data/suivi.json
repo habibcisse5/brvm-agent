@@ -1,0 +1,52 @@
+{
+  "derniere_maj": "2026-04-14",
+  "actions": [
+    {
+      "id": "A001",
+      "titre": "Ordre limite BIIC BN",
+      "detail": "400 titres à 5 700 FCFA — validité 30 jours — Sika Finance",
+      "statut": "en_attente",
+      "date_cible": null,
+      "date_realisation": null,
+      "note": ""
+    },
+    {
+      "id": "A002",
+      "titre": "Acheter NTLC",
+      "detail": "~99 titres à 12 000 FCFA avec 1.2M FCFA liquidités — correction actuelle opportunité",
+      "statut": "en_attente",
+      "date_cible": "2026-04-21",
+      "date_realisation": null,
+      "note": ""
+    },
+    {
+      "id": "A003",
+      "titre": "Dividende BOA BN",
+      "detail": "Ex-div 5 mai 2026 — ~208 000 FCFA brut sur 350 titres — prévoir calcul purification",
+      "statut": "en_attente",
+      "date_cible": "2026-05-05",
+      "date_realisation": null,
+      "note": ""
+    },
+    {
+      "id": "A004",
+      "titre": "Acheter TTLC",
+      "detail": "Entree après vente partielle BIIC BN — cours cible 2 700-2 800 FCFA",
+      "statut": "en_attente",
+      "date_cible": null,
+      "date_realisation": null,
+      "note": "Déclenché par l'exécution de A001"
+    },
+    {
+      "id": "A005",
+      "titre": "Consultation savant — statut halal banques",
+      "detail": "BOA BN, BICI CI, BIIC BN, ECOBANK ETI, SGCI, SIB CI — 82% du portefeuille",
+      "statut": "en_attente",
+      "date_cible": null,
+      "date_realisation": null,
+      "note": ""
+    }
+  ],
+  "statuts_possibles": ["en_attente", "en_cours", "realise", "annule"],
+  "portefeuille_ref": "data/portefeuille.json"
+}
