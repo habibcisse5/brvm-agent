@@ -1,0 +1,91 @@
+{
+  "compte": "0070489092",
+  "proprietaire": "M. Cisse Habib",
+  "date_maj": "2026-04-14",
+  "liquidite_fcfa": 1201585,
+  "positions": [
+    {
+      "ticker": "BOAB",
+      "nom": "Bank of Africa BN",
+      "quantite": 350,
+      "cmp": 6334,
+      "secteur": "banque",
+      "halal": "a_clarifier"
+    },
+    {
+      "ticker": "BICC",
+      "nom": "BICI CI",
+      "quantite": 30,
+      "cmp": 15919,
+      "secteur": "banque",
+      "halal": "a_clarifier"
+    },
+    {
+      "ticker": "BICB",
+      "nom": "BIIC BN",
+      "quantite": 1000,
+      "cmp": 5250,
+      "secteur": "banque",
+      "halal": "a_clarifier",
+      "note": "Position ancienne - ordre limite 5700 FCFA / 400 titres"
+    },
+    {
+      "ticker": "ETIT",
+      "nom": "Ecobank ETI",
+      "quantite": 52049,
+      "cmp": 32,
+      "secteur": "banque",
+      "halal": "a_clarifier"
+    },
+    {
+      "ticker": "SGBC",
+      "nom": "Societe Generale CI",
+      "quantite": 50,
+      "cmp": 22460,
+      "secteur": "banque",
+      "halal": "a_clarifier"
+    },
+    {
+      "ticker": "SIBC",
+      "nom": "SIB CI",
+      "quantite": 7,
+      "cmp": 4437,
+      "secteur": "banque",
+      "halal": "a_clarifier"
+    },
+    {
+      "ticker": "SNTS",
+      "nom": "Sonatel SN",
+      "quantite": 75,
+      "cmp": 28392,
+      "secteur": "telecom",
+      "halal": "conforme"
+    },
+    {
+      "ticker": "SIVC",
+      "nom": "Sucrivoire CI",
+      "quantite": 200,
+      "cmp": 1014,
+      "secteur": "agro",
+      "halal": "conforme"
+    }
+  ],
+  "cibles": [
+    {
+      "ticker": "TTLC",
+      "nom": "TotalEnergies CI",
+      "secteur": "energie",
+      "halal": "conforme",
+      "priorite": 2,
+      "note": "Entree apres vente partielle BICB"
+    },
+    {
+      "ticker": "NTLC",
+      "nom": "Nestle CI",
+      "secteur": "alimentation",
+      "halal": "conforme",
+      "priorite": 1,
+      "note": "Entree immediate avec liquidites disponibles"
+    }
+  ]
+}
