@@ -1,23 +1,22 @@
-{
-  "derniere_maj": "2026-04-14",
+  "derniere_maj": "2026-04-16",
   "actions": [
     {
       "id": "A001",
       "titre": "Ordre limite BIIC BN",
-      "detail": "400 titres à 5 700 FCFA — validité 30 jours — Sika Finance",
+      "detail": "400 titres à 5 700 FCFA — validité 30 jours — BNI Finance Trade",
       "statut": "en_attente",
       "date_cible": null,
       "date_realisation": null,
-      "note": ""
+      "note": "Ordre à passer — débloque renforcement TTLC une fois exécuté"
     },
     {
       "id": "A002",
       "titre": "Acheter NTLC",
-      "detail": "~99 titres à 12 000 FCFA avec 1.2M FCFA liquidités — correction actuelle opportunité",
+      "detail": "34 titres achetés à 11 800 FCFA — frais 5 616 FCFA — total 406 816 FCFA",
       "statut": "realise",
       "date_cible": "2026-04-21",
-      "date_realisation": null,
-      "note": ""
+      "date_realisation": "2026-04-15",
+      "note": "Ordre 148385 — exécuté séance 15/04/2026"
     },
     {
       "id": "A003",
@@ -26,16 +25,16 @@
       "statut": "en_attente",
       "date_cible": "2026-05-05",
       "date_realisation": null,
-      "note": ""
+      "note": "Taux haram BOA ~72% — montant à purifier ~149 814 FCFA"
     },
     {
       "id": "A004",
       "titre": "Acheter TTLC",
-      "detail": "Entree après vente partielle BIIC BN — cours cible 2 700-2 800 FCFA",
+      "detail": "169 titres achetés à 2 840 FCFA — frais 6 719 FCFA — total 486 478 FCFA",
       "statut": "realise",
       "date_cible": null,
-      "date_realisation": null,
-      "note": "Déclenché par l'exécution de A001"
+      "date_realisation": "2026-04-15",
+      "note": "Ordre 148384 — exécuté en 7 tranches séance 15/04/2026"
     },
     {
       "id": "A005",
@@ -44,7 +43,34 @@
       "statut": "en_attente",
       "date_cible": null,
       "date_realisation": null,
-      "note": ""
+      "note": "Requis avant tout renforcement des lignes bancaires"
+    },
+    {
+      "id": "A006",
+      "titre": "Renforcement SIVC",
+      "detail": "147 titres achetés à 2 000 FCFA — frais 4 116 FCFA — total 298 116 FCFA",
+      "statut": "realise",
+      "date_cible": null,
+      "date_realisation": "2026-04-15",
+      "note": "Ordre 148386 — exécuté en 3 tranches séance 15/04/2026"
+    },
+    {
+      "id": "A007",
+      "titre": "Vente Orange CI",
+      "detail": "30 titres Orange CI soldés — moins-value réalisée",
+      "statut": "realise",
+      "date_cible": null,
+      "date_realisation": "2026-04-15",
+      "note": "Position entièrement clôturée"
+    },
+    {
+      "id": "A008",
+      "titre": "Investiguer CIEC (CIE CI)",
+      "detail": "TOP 10 BNI 13/04 — +28% sur 6 mois cours 3 195 FCFA — utilitaire électricité CI",
+      "statut": "en_attente",
+      "date_cible": null,
+      "date_realisation": null,
+      "note": "Vérifier statut halal et fondamentaux avant toute décision"
     }
   ],
   "statuts_possibles": ["en_attente", "en_cours", "realise", "annule"],
