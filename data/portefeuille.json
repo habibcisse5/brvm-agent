@@ -1,91 +1,160 @@
 {
   "compte": "0070489092",
   "proprietaire": "M. Cisse Habib",
-  "date_maj": "2026-04-14",
-  "liquidite_fcfa": 1201585,
+  "plateforme": "BNI Finance Trade",
+  "date_maj": "2026-04-16",
+  "source": "Avis opéré 15/04/2026 + Relevé trimestriel Q1 2026",
+  "liquidite_fcfa": 754925,
+  "commentaire_liquidite": "Après achats TTLC/NTLC/SIVC du 15/04 — liquidités très faibles",
   "positions": [
     {
       "ticker": "BOAB",
       "nom": "Bank of Africa BN",
       "quantite": 350,
       "cmp": 6334,
+      "cours_ref": 7500,
+      "pv_latente": 408236,
+      "pv_pct": 18.41,
+      "poids_pct": 17.58,
       "secteur": "banque",
-      "halal": "a_clarifier"
+      "halal": "a_clarifier",
+      "note": "Ex-div 5 mai 2026 — 594.5 FCFA net/titre — purification requise"
     },
     {
       "ticker": "BICC",
       "nom": "BICI CI",
       "quantite": 30,
       "cmp": 15919,
+      "cours_ref": 25400,
+      "pv_latente": 284437,
+      "pv_pct": 59.56,
+      "poids_pct": 5.10,
       "secteur": "banque",
-      "halal": "a_clarifier"
+      "halal": "a_clarifier",
+      "note": ""
     },
     {
       "ticker": "BICB",
       "nom": "BIIC BN",
       "quantite": 1000,
       "cmp": 5250,
+      "cours_ref": 5100,
+      "pv_latente": -150000,
+      "pv_pct": -2.85,
+      "poids_pct": 34.15,
       "secteur": "banque",
       "halal": "a_clarifier",
-      "note": "Position ancienne - ordre limite 5700 FCFA / 400 titres"
+      "note": "Ordre limite 5 700 FCFA / 400 titres à passer — position ancienne"
     },
     {
       "ticker": "ETIT",
       "nom": "Ecobank ETI",
       "quantite": 52049,
       "cmp": 32,
+      "cours_ref": 33,
+      "pv_latente": 28747,
+      "pv_pct": 1.70,
+      "poids_pct": 11.50,
       "secteur": "banque",
-      "halal": "a_clarifier"
+      "halal": "a_clarifier",
+      "note": ""
     },
     {
       "ticker": "SGBC",
       "nom": "Societe Generale CI",
       "quantite": 50,
       "cmp": 22460,
+      "cours_ref": 34500,
+      "pv_latente": 601995,
+      "pv_pct": 53.60,
+      "poids_pct": 11.55,
       "secteur": "banque",
-      "halal": "a_clarifier"
+      "halal": "a_clarifier",
+      "note": "Meilleure performance du portefeuille en valeur absolue"
     },
     {
       "ticker": "SIBC",
-      "nom": "SIB CI",
+      "nom": "Societe Ivoirienne de Banque",
       "quantite": 7,
       "cmp": 4437,
+      "cours_ref": 6900,
+      "pv_latente": 17241,
+      "pv_pct": 55.51,
+      "poids_pct": 0.32,
       "secteur": "banque",
-      "halal": "a_clarifier"
+      "halal": "a_clarifier",
+      "note": "Position micro"
     },
     {
       "ticker": "SNTS",
       "nom": "Sonatel SN",
       "quantite": 75,
       "cmp": 28392,
+      "cours_ref": 29000,
+      "pv_latente": 45600,
+      "pv_pct": 2.14,
+      "poids_pct": 14.56,
       "secteur": "telecom",
-      "halal": "conforme"
+      "halal": "conforme",
+      "note": ""
     },
     {
       "ticker": "SIVC",
       "nom": "Sucrivoire CI",
-      "quantite": 200,
-      "cmp": 1014,
+      "quantite": 347,
+      "cmp_moyen": 1294,
+      "cmp_initial": 1014,
+      "cmp_renfort": 2000,
+      "cours_ref": 2025,
+      "poids_pct": 2.15,
       "secteur": "agro",
-      "halal": "conforme"
-    }
-  ],
-  "cibles": [
+      "halal": "conforme",
+      "note": "200 titres initiaux (CMP 1014) + 147 titres achetés le 15/04 à 2000 FCFA"
+    },
     {
       "ticker": "TTLC",
-      "nom": "TotalEnergies CI",
+      "nom": "TotalEnergies Marketing CI",
+      "quantite": 169,
+      "cmp": 2840,
+      "cours_ref": 2800,
+      "pv_latente": -6760,
+      "pv_pct": -1.41,
+      "poids_pct": 3.20,
       "secteur": "energie",
       "halal": "conforme",
-      "priorite": 2,
-      "note": "Entree apres vente partielle BICB"
+      "note": "Nouvelle ligne ouverte le 15/04/2026 — ordre 148384"
     },
     {
       "ticker": "NTLC",
       "nom": "Nestle CI",
+      "quantite": 34,
+      "cmp": 11800,
+      "cours_ref": 11800,
+      "pv_latente": 0,
+      "pv_pct": 0.0,
+      "poids_pct": 2.70,
       "secteur": "alimentation",
       "halal": "conforme",
-      "priorite": 1,
-      "note": "Entree immediate avec liquidites disponibles"
+      "note": "Nouvelle ligne ouverte le 15/04/2026 — ordre 148385"
+    }
+  ],
+  "positions_clôturees": [
+    {
+      "ticker": "ORAC",
+      "nom": "Orange CI",
+      "quantite_cloturee": 30,
+      "date_cloture": "2026-04-15",
+      "note": "Position soldée — moins-value réalisée"
+    }
+  ],
+  "cibles_surveillance": [
+    {
+      "ticker": "CIEC",
+      "nom": "CIE Cote d'Ivoire",
+      "secteur": "utilitaire",
+      "halal": "a_verifier",
+      "signal": "TOP 10 BNI 13/04 — +28% sur 6 mois",
+      "note": "A investiguer"
     }
   ]
 }
