@@ -1,76 +1,68 @@
+{
   "derniere_maj": "2026-04-16",
   "actions": [
     {
       "id": "A001",
       "titre": "Ordre limite BIIC BN",
-      "detail": "400 titres à 5 700 FCFA — validité 30 jours — BNI Finance Trade",
+      "detail": "400 titres a 5700 FCFA — BNI Finance Trade",
       "statut": "en_attente",
       "date_cible": null,
       "date_realisation": null,
-      "note": "Ordre à passer — débloque renforcement TTLC une fois exécuté"
+      "note": ""
     },
     {
       "id": "A002",
       "titre": "Acheter NTLC",
-      "detail": "34 titres achetés à 11 800 FCFA — frais 5 616 FCFA — total 406 816 FCFA",
+      "detail": "34 titres achetes a 11800 FCFA le 15/04/2026",
       "statut": "realise",
-      "date_cible": "2026-04-21",
+      "date_cible": null,
       "date_realisation": "2026-04-15",
-      "note": "Ordre 148385 — exécuté séance 15/04/2026"
+      "note": "Ordre 148385"
     },
     {
       "id": "A003",
       "titre": "Dividende BOA BN",
-      "detail": "Ex-div 5 mai 2026 — ~208 000 FCFA brut sur 350 titres — prévoir calcul purification",
+      "detail": "Ex-div 5 mai 2026 — purification requise",
       "statut": "en_attente",
       "date_cible": "2026-05-05",
       "date_realisation": null,
-      "note": "Taux haram BOA ~72% — montant à purifier ~149 814 FCFA"
+      "note": ""
     },
     {
       "id": "A004",
       "titre": "Acheter TTLC",
-      "detail": "169 titres achetés à 2 840 FCFA — frais 6 719 FCFA — total 486 478 FCFA",
+      "detail": "169 titres achetes a 2840 FCFA le 15/04/2026",
       "statut": "realise",
       "date_cible": null,
       "date_realisation": "2026-04-15",
-      "note": "Ordre 148384 — exécuté en 7 tranches séance 15/04/2026"
+      "note": "Ordre 148384"
     },
     {
       "id": "A005",
-      "titre": "Consultation savant — statut halal banques",
-      "detail": "BOA BN, BICI CI, BIIC BN, ECOBANK ETI, SGCI, SIB CI — 82% du portefeuille",
+      "titre": "Consultation savant halal banques",
+      "detail": "BOA BN, BICI CI, BIIC BN, ECOBANK, SGCI, SIB CI",
       "statut": "en_attente",
       "date_cible": null,
       "date_realisation": null,
-      "note": "Requis avant tout renforcement des lignes bancaires"
+      "note": ""
     },
     {
       "id": "A006",
       "titre": "Renforcement SIVC",
-      "detail": "147 titres achetés à 2 000 FCFA — frais 4 116 FCFA — total 298 116 FCFA",
+      "detail": "147 titres achetes a 2000 FCFA le 15/04/2026",
       "statut": "realise",
       "date_cible": null,
       "date_realisation": "2026-04-15",
-      "note": "Ordre 148386 — exécuté en 3 tranches séance 15/04/2026"
+      "note": "Ordre 148386"
     },
     {
       "id": "A007",
       "titre": "Vente Orange CI",
-      "detail": "30 titres Orange CI soldés — moins-value réalisée",
+      "detail": "30 titres soldes le 15/04/2026",
       "statut": "realise",
       "date_cible": null,
       "date_realisation": "2026-04-15",
-      "note": "Position entièrement clôturée"
-    },
-    {
-      "id": "A008",
-      "titre": "Investiguer CIEC (CIE CI)",
-      "detail": "TOP 10 BNI 13/04 — +28% sur 6 mois cours 3 195 FCFA — utilitaire électricité CI",
-      "statut": "en_attente",
-      "date_cible": null,
-      "date_realisation": null,
-      "note": "Vérifier statut halal et fondamentaux avant toute décision"
+      "note": ""
     }
   ],
   "statuts_possibles": ["en_attente", "en_cours", "realise", "annule"],
