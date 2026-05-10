@@ -1,0 +1,62 @@
+name: BRVM Sync — PDF BNI
+
+on:
+  # Déclenché par Zapier via webhook repository_dispatch
+  repository_dispatch:
+    types: [bni-pdf-received]
+
+  # Fallback manuel
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer les dépendances
+        run: |
+          pip install anthropic google-api-python-client \
+                      google-auth google-auth-httplib2 \
+                      google-auth-oauthlib requests
+
+      - name: Synchroniser le PDF BNI
+        env:
+          ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_CREDS_JSON:  ${{ secrets.GOOGLE_CREDS_JSON }}
+          DRIVE_FOLDER_ID:    ${{ secrets.DRIVE_FOLDER_ID }}
+          REPORT_EMAIL:       ${{ secrets.REPORT_EMAIL }}
+        run: python agents/brvm_sync.py
+
+      - name: Lancer l'agent BRVM complet
+        env:
+          ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
+          REPORT_EMAIL:        ${{ secrets.REPORT_EMAIL }}
+          GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python agents/orchestrator.py
+
+      - name: Préparer le dashboard pour GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: output/
+
+      - name: Publier sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
