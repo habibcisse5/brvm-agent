@@ -1,16 +1,13 @@
 name: BRVM Agent — Auto Sync
 
 on:
-  # Polling Gmail toutes les heures
   schedule:
-    - cron: '0 * * * *'      # toutes les heures
-    - cron: '0 7 * * 1'      # lundi 8h — rapport complet même sans email
-
-  # Déclenchement manuel
+    - cron: '0 * * * *'   # toutes les heures
+    - cron: '0 7 * * 1'   # lundi 8h
   workflow_dispatch:
     inputs:
       force_sync:
-        description: 'Forcer le sync même sans nouvel email'
+        description: 'Forcer le sync (true/false)'
         required: false
         default: 'false'
 
@@ -20,11 +17,11 @@ permissions:
   id-token: write
 
 jobs:
+  # ── JOB 1 : Polling + Sync + Agent ──────────────
   poll-and-sync:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
 
     steps:
       - name: Checkout repo
@@ -49,19 +46,33 @@ jobs:
                       python-dateutil \
                       jinja2
 
-      - name: Vérifier Gmail (polling)
-        id: gmail_check
+      - name: Vérifier Gmail
+        id: poller
         env:
           GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
           DRIVE_FOLDER_ID:   ${{ secrets.DRIVE_FOLDER_ID }}
           REPORT_EMAIL:      ${{ secrets.REPORT_EMAIL }}
         run: |
           python agents/gmail_poller.py
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
+          echo "poller_exit=$?" >> $GITHUB_OUTPUT
         continue-on-error: true
 
+      - name: Décider si on sync
+        id: check
+        run: |
+          FORCE="${{ github.event.inputs.force_sync }}"
+          POLLER="${{ steps.poller.outputs.poller_exit }}"
+          SCHEDULE="${{ github.event.schedule }}"
+          if [ "$FORCE" = "true" ] || [ "$POLLER" = "10" ] || [ "$SCHEDULE" = "0 7 * * 1" ]; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "[check] Sync déclenché"
+          else
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+            echo "[check] Pas de nouveau PDF — sync ignoré"
+          fi
+
       - name: Synchroniser le PDF BNI
-        if: steps.gmail_check.outputs.exit_code == '10' || github.event.inputs.force_sync == 'true' || github.event.schedule == '0 7 * * 1'
+        if: steps.check.outputs.should_deploy == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
@@ -69,21 +80,30 @@ jobs:
           REPORT_EMAIL:      ${{ secrets.REPORT_EMAIL }}
         run: python agents/brvm_sync.py
 
-      - name: Lancer l'agent BRVM complet
-        if: steps.gmail_check.outputs.exit_code == '10' || github.event.inputs.force_sync == 'true' || github.event.schedule == '0 7 * * 1'
+      - name: Lancer l'agent BRVM
+        if: steps.check.outputs.should_deploy == 'true'
         env:
           ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
           REPORT_EMAIL:       ${{ secrets.REPORT_EMAIL }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python agents/orchestrator.py
 
-      - name: Préparer le dashboard pour GitHub Pages
-        if: steps.gmail_check.outputs.exit_code == '10' || github.event.inputs.force_sync == 'true' || github.event.schedule == '0 7 * * 1'
+      - name: Préparer GitHub Pages
+        if: steps.check.outputs.should_deploy == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: output/
 
+  # ── JOB 2 : Déploiement GitHub Pages ────────────
+  deploy-pages:
+    needs: poll-and-sync
+    if: needs.poll-and-sync.outputs.should_deploy == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
       - name: Publier sur GitHub Pages
-        if: steps.gmail_check.outputs.exit_code == '10' || github.event.inputs.force_sync == 'true' || github.event.schedule == '0 7 * * 1'
         id: deployment
         uses: actions/deploy-pages@v4
