@@ -1,0 +1,89 @@
+name: BRVM Agent — Auto Sync
+
+on:
+  # Polling Gmail toutes les heures
+  schedule:
+    - cron: '0 * * * *'      # toutes les heures
+    - cron: '0 7 * * 1'      # lundi 8h — rapport complet même sans email
+
+  # Déclenchement manuel
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Forcer le sync même sans nouvel email'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  poll-and-sync:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer les dépendances
+        run: |
+          pip install anthropic \
+                      google-api-python-client \
+                      google-auth \
+                      google-auth-httplib2 \
+                      google-auth-oauthlib \
+                      requests \
+                      beautifulsoup4 \
+                      python-dateutil \
+                      jinja2
+
+      - name: Vérifier Gmail (polling)
+        id: gmail_check
+        env:
+          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
+          DRIVE_FOLDER_ID:   ${{ secrets.DRIVE_FOLDER_ID }}
+          REPORT_EMAIL:      ${{ secrets.REPORT_EMAIL }}
+        run: |
+          python agents/gmail_poller.py
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Synchroniser le PDF BNI
+        if: steps.gmail_check.outputs.exit_code == '10' || github.event.inputs.force_sync == 'true' || github.event.schedule == '0 7 * * 1'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
+          DRIVE_FOLDER_ID:   ${{ secrets.DRIVE_FOLDER_ID }}
+          REPORT_EMAIL:      ${{ secrets.REPORT_EMAIL }}
+        run: python agents/brvm_sync.py
+
+      - name: Lancer l'agent BRVM complet
+        if: steps.gmail_check.outputs.exit_code == '10' || github.event.inputs.force_sync == 'true' || github.event.schedule == '0 7 * * 1'
+        env:
+          ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
+          REPORT_EMAIL:       ${{ secrets.REPORT_EMAIL }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python agents/orchestrator.py
+
+      - name: Préparer le dashboard pour GitHub Pages
+        if: steps.gmail_check.outputs.exit_code == '10' || github.event.inputs.force_sync == 'true' || github.event.schedule == '0 7 * * 1'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: output/
+
+      - name: Publier sur GitHub Pages
+        if: steps.gmail_check.outputs.exit_code == '10' || github.event.inputs.force_sync == 'true' || github.event.schedule == '0 7 * * 1'
+        id: deployment
+        uses: actions/deploy-pages@v4
