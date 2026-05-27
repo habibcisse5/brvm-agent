@@ -1,9 +1,771 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><title>Agent BRVM — En attente du premier run</title></head>
-<body style="font-family:sans-serif;padding:2rem;color:#333;">
-  <h1>Agent BRVM</h1>
-  <p>Le dashboard sera disponible après le premier run de l'agent.</p>
-  <p>Lance le workflow manuellement depuis l'onglet <strong>Actions</strong> de ton repo GitHub.</p>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRVM Dashboard — M. Cissé Habib</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg:#0A0E1A; --bg2:#111827; --bg3:#1A2235;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+  --text:#F0F4FF; --text2:#8892A4; --text3:#4A5568;
+  --up:#00E5A0; --up-bg:rgba(0,229,160,0.10);
+  --dn:#FF4D6D; --dn-bg:rgba(255,77,109,0.10);
+  --warn:#FFB547; --warn-bg:rgba(255,181,71,0.10);
+  --info:#60A5FA; --info-bg:rgba(96,165,250,0.10);
+  --accent:#7C6FFF; --accent2:#FF6B6B; --accent3:#FFB547;
+  --r:12px; --r-lg:16px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Cabinet Grotesk',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+.header {
+  background:linear-gradient(135deg,#0A0E1A,#111827,#0D1B2A);
+  border-bottom:1px solid var(--border);
+  padding:1.25rem 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100; backdrop-filter:blur(10px);
+}
+.header-left { display:flex; align-items:center; gap:14px; }
+.logo { width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#A78BFA);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px; }
+.header-title { font-size:16px;font-weight:700;letter-spacing:-0.3px; }
+.header-sub { font-size:11px;color:var(--text2);margin-top:1px;font-family:'DM Mono',monospace; }
+.live-badge { display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:var(--up);background:var(--up-bg);padding:4px 10px;border-radius:20px;font-family:'DM Mono',monospace; }
+.live-dot { width:6px;height:6px;border-radius:50%;background:var(--up);animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+.nav { background:var(--bg2);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;gap:0;overflow-x:auto;scrollbar-width:none; }
+.nav::-webkit-scrollbar { display:none; }
+.nav-tab { padding:.85rem 1.1rem;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none; }
+.nav-tab:hover { color:var(--text); }
+.nav-tab.active { color:var(--accent);border-bottom-color:var(--accent); }
+
+.container { max-width:1200px;margin:0 auto;padding:1.5rem; }
+.page { display:none; }
+.page.active { display:block; }
+
+.metrics { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem; }
+@media(max-width:768px){.metrics{grid-template-columns:repeat(2,1fr);}}
+.metric { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s; }
+.metric:hover { border-color:var(--border2);transform:translateY(-1px); }
+.metric::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent); }
+.metric.green::before { background:linear-gradient(90deg,var(--up),transparent); }
+.metric.amber::before { background:linear-gradient(90deg,var(--warn),transparent); }
+.metric.red::before { background:linear-gradient(90deg,var(--dn),transparent); }
+.metric-label { font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-family:'DM Mono',monospace; }
+.metric-val { font-size:22px;font-weight:800;letter-spacing:-.5px; }
+.metric-sub { font-size:11px;color:var(--text2);margin-top:4px;font-family:'DM Mono',monospace; }
+.up{color:var(--up);} .dn{color:var(--dn);} .neu{color:var(--text2);}
+
+.sec { font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.10em;margin:1.5rem 0 .75rem;display:flex;align-items:center;gap:8px; }
+.sec::after { content:'';flex:1;height:1px;background:var(--border); }
+
+.table-wrap { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:1.5rem; }
+table { width:100%;border-collapse:collapse;font-size:13px; }
+th { background:var(--bg3);font-weight:600;font-size:10px;color:var(--text2);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.05em;font-family:'DM Mono',monospace; }
+td { padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(255,255,255,.02); }
+.bar-bg { height:3px;border-radius:2px;background:var(--bg3);margin-top:4px;overflow:hidden; }
+.bar-f { height:100%;border-radius:2px; }
+
+.badge { font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap;font-family:'DM Mono',monospace; }
+.b-halal{background:var(--up-bg);color:var(--up);border:1px solid rgba(0,229,160,.2);}
+.b-warn{background:var(--warn-bg);color:var(--warn);border:1px solid rgba(255,181,71,.2);}
+.b-alert{background:var(--dn-bg);color:var(--dn);border:1px solid rgba(255,77,109,.2);}
+.b-info{background:var(--info-bg);color:var(--info);border:1px solid rgba(96,165,250,.2);}
+.b-done{background:rgba(0,229,160,.08);color:var(--up);border:1px solid rgba(0,229,160,.15);}
+.b-wait{background:var(--warn-bg);color:var(--warn);border:1px solid rgba(255,181,71,.2);}
+.b-cours{background:var(--info-bg);color:var(--info);border:1px solid rgba(96,165,250,.2);}
+
+.alert{border-left:3px solid;padding:12px 16px;margin-bottom:10px;font-size:13px;line-height:1.6;border-radius:0 var(--r) var(--r) 0;}
+.a-red{border-color:var(--dn);background:var(--dn-bg);color:#FFB3C0;}
+.a-warn{border-color:var(--warn);background:var(--warn-bg);color:#FFD99A;}
+.a-ok{border-color:var(--up);background:var(--up-bg);color:#7FFFD4;}
+.a-info{border-color:var(--info);background:var(--info-bg);color:#BAD8FF;}
+
+/* ACTIONS CARDS */
+.action-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;transition:border-color .15s; }
+.action-card:hover { border-color:var(--border2); }
+.action-card.done { opacity:.45; }
+.action-num { min-width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;font-family:'DM Mono',monospace; }
+.num-wait{background:var(--warn-bg);color:var(--warn);}
+.num-cours{background:var(--info-bg);color:var(--info);}
+.num-done{background:var(--up-bg);color:var(--up);}
+.action-body { flex:1; }
+.action-title { font-size:14px;font-weight:600;margin-bottom:3px; }
+.action-detail { font-size:12px;color:var(--text2);line-height:1.5; }
+.action-note { font-size:11px;color:var(--text3);margin-top:4px;font-style:italic; }
+.action-meta { display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap; }
+.action-btns { display:flex;flex-direction:column;gap:6px;flex-shrink:0; }
+
+/* BOUTONS */
+.btn { display:inline-flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .15s;font-family:'Cabinet Grotesk',sans-serif;border:none; }
+.btn-primary { background:rgba(124,111,255,.2);color:var(--accent);border:1px solid rgba(124,111,255,.3); }
+.btn-primary:hover { background:rgba(124,111,255,.35); }
+.btn-success { background:rgba(0,229,160,.15);color:var(--up);border:1px solid rgba(0,229,160,.25); }
+.btn-success:hover { background:rgba(0,229,160,.25); }
+.btn-warn { background:rgba(255,181,71,.15);color:var(--warn);border:1px solid rgba(255,181,71,.25); }
+.btn-warn:hover { background:rgba(255,181,71,.25); }
+.btn-ghost { background:transparent;color:var(--text2);border:1px solid var(--border); }
+.btn-ghost:hover { background:var(--bg3);color:var(--text); }
+.btn-sm { padding:4px 10px;font-size:11px; }
+.btn-add { background:linear-gradient(135deg,var(--accent),#A78BFA);color:#fff;border:none;padding:8px 16px;font-size:13px;border-radius:10px;cursor:pointer;font-weight:700;transition:opacity .15s; }
+.btn-add:hover { opacity:.85; }
+
+/* MODAL */
+.modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px); }
+.modal-overlay.hidden { display:none; }
+.modal { background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-lg);padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto; }
+.modal-title { font-size:16px;font-weight:700;margin-bottom:16px; }
+.modal-field { margin-bottom:14px; }
+.modal-label { font-size:12px;color:var(--text2);margin-bottom:5px;display:block;font-weight:500; }
+.modal-input { width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'Cabinet Grotesk',sans-serif;outline:none; }
+.modal-input:focus { border-color:var(--accent); }
+.modal-select { width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'Cabinet Grotesk',sans-serif;outline:none;cursor:pointer; }
+.modal-select option { background:var(--bg2); }
+.modal-btns { display:flex;gap:8px;justify-content:flex-end;margin-top:20px; }
+
+/* TOKEN SETUP */
+.token-banner { background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.2);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:1.5rem;display:flex;align-items:center;gap:14px; }
+.token-banner.hidden { display:none; }
+
+/* PROGRESS */
+.progress-section { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:1.5rem; }
+.progress-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+.progress-title { font-size:13px;font-weight:600; }
+.progress-count { font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--up); }
+.progress-bar-bg { height:6px;background:var(--bg3);border-radius:3px;overflow:hidden; }
+.progress-bar-fill { height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--up));transition:width .8s ease; }
+.progress-labels { display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:6px;font-family:'DM Mono',monospace; }
+
+.filter-row { display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;align-items:center; }
+.filter-btn { font-size:12px;padding:5px 14px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Cabinet Grotesk',sans-serif; }
+.filter-btn:hover { color:var(--text);border-color:var(--border2); }
+.filter-btn.active { background:rgba(124,111,255,.15);color:var(--accent);border-color:rgba(124,111,255,.3); }
+
+/* TOAST */
+.toast { position:fixed;bottom:24px;right:24px;z-index:2000;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-lg);padding:14px 18px;font-size:13px;font-weight:500;max-width:320px;transform:translateY(100px);opacity:0;transition:all .3s ease; }
+.toast.show { transform:translateY(0);opacity:1; }
+.toast.success { border-color:rgba(0,229,160,.3);color:var(--up); }
+.toast.error { border-color:rgba(255,77,109,.3);color:var(--dn); }
+
+/* OPP */
+.opp-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-bottom:1.5rem; }
+.opp-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;transition:border-color .15s,transform .15s;position:relative;overflow:hidden; }
+.opp-card:hover { border-color:var(--accent);transform:translateY(-2px); }
+.opp-card.bni { border-color:rgba(124,111,255,.3); }
+.opp-card.bni::after { content:'BNI';position:absolute;top:12px;right:12px;font-size:9px;font-weight:700;color:var(--accent);background:rgba(124,111,255,.15);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace; }
+
+/* DIV */
+.div-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px; }
+.div-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;position:relative;overflow:hidden; }
+.div-card::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent3),transparent); }
+
+.chart-container { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:1.5rem; }
+.chart-wrap { position:relative;height:220px; }
+.chart-legend { display:flex;flex-wrap:wrap;gap:10px;margin-top:12px; }
+.chart-legend-item { display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);font-family:'DM Mono',monospace; }
+.chart-dot { width:8px;height:8px;border-radius:2px; }
+
+.risk-section { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem; }
+@media(max-width:600px){.risk-section{grid-template-columns:1fr;}}
+.risk-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;text-align:center; }
+.halal-bar-bg { height:8px;background:var(--bg3);border-radius:4px;overflow:hidden; }
+.halal-bar-fill { height:100%;border-radius:4px;background:linear-gradient(90deg,var(--up),#00B377);transition:width .8s ease; }
+
+@media(max-width:768px){.header{padding:1rem;}.container{padding:1rem .75rem;}.nav{padding:0 .75rem;}table{font-size:12px;}th,td{padding:8px 10px;}}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL : Marquer réalisé -->
+<div class="modal-overlay hidden" id="modal-realise">
+  <div class="modal">
+    <div class="modal-title">✅ Marquer comme réalisé</div>
+    <div class="modal-field">
+      <label class="modal-label">Action</label>
+      <div style="font-size:14px;font-weight:600;" id="modal-action-titre">—</div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Date de réalisation</label>
+      <input type="date" class="modal-input" id="modal-date">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Note (optionnel)</label>
+      <input type="text" class="modal-input" id="modal-note" placeholder="Ex: 169 titres achetés à 2 840 FCFA">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal('modal-realise')">Annuler</button>
+      <button class="btn btn-success" onclick="confirmerRealise()">Confirmer ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : Nouvelle action -->
+<div class="modal-overlay hidden" id="modal-new">
+  <div class="modal">
+    <div class="modal-title">➕ Nouvelle action</div>
+    <div class="modal-field">
+      <label class="modal-label">Titre</label>
+      <input type="text" class="modal-input" id="new-titre" placeholder="Ex: Acheter PALC">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Détail</label>
+      <input type="text" class="modal-input" id="new-detail" placeholder="Ex: 50 titres à 8 100 FCFA">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Statut</label>
+      <select class="modal-select" id="new-statut">
+        <option value="en_attente">En attente</option>
+        <option value="en_cours">En cours</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Date cible (optionnel)</label>
+      <input type="date" class="modal-input" id="new-date">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Note</label>
+      <input type="text" class="modal-input" id="new-note" placeholder="Contexte ou condition de déclenchement">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal('modal-new')">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmerNouvelle()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : Token GitHub -->
+<div class="modal-overlay hidden" id="modal-token">
+  <div class="modal">
+    <div class="modal-title">🔑 Configurer le token GitHub</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
+      Le token GitHub permet de sauvegarder tes actions directement dans le repo. Il est stocké uniquement dans ton navigateur, jamais sur un serveur externe.
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Personal Access Token (scope: repo)</label>
+      <input type="password" class="modal-input" id="token-input" placeholder="ghp_...">
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px;">
+      Créer sur github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal('modal-token')">Annuler</button>
+      <button class="btn btn-primary" onclick="sauvegarderToken()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">📊</div>
+    <div>
+      <div class="header-title">BRVM Dashboard</div>
+      <div class="header-sub" id="header-sub">M. Cissé Habib · Compte 0070489092</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="live-badge"><div class="live-dot"></div><span id="last-update">—</span></div>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('modal-token')" title="Configurer token GitHub">🔑</button>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nav-tab active" onclick="showPage('overview',this)">Vue d'ensemble</button>
+  <button class="nav-tab" onclick="showPage('portfolio',this)">Portefeuille</button>
+  <button class="nav-tab" onclick="showPage('actions',this)">Actions <span id="badge-attente" style="background:var(--warn-bg);color:var(--warn);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px;font-family:'DM Mono',monospace;"></span></button>
+  <button class="nav-tab" onclick="showPage('opportunites',this)">Opportunités</button>
+  <button class="nav-tab" onclick="showPage('dividendes',this)">Dividendes</button>
+</nav>
+
+<!-- PAGE : VUE D'ENSEMBLE -->
+<div class="page active" id="page-overview">
+<div class="container">
+  <div class="metrics">
+    <div class="metric green"><div class="metric-label">Total général</div><div class="metric-val">15.5M</div><div class="metric-sub">FCFA</div></div>
+    <div class="metric"><div class="metric-label">PV latente</div><div class="metric-val up">+1.19M</div><div class="metric-sub">FCFA nette</div></div>
+    <div class="metric amber"><div class="metric-label">Score risque</div><div class="metric-val" style="color:var(--warn)">42/100</div><div class="metric-sub">Concentration BICB</div></div>
+    <div class="metric"><div class="metric-label">Part halal</div><div class="metric-val" style="color:var(--warn)">17.5%</div><div class="metric-sub">Objectif 30%</div></div>
+  </div>
+  <div class="risk-section">
+    <div class="risk-card">
+      <div class="metric-label" style="margin-bottom:10px">Score de risque</div>
+      <div style="font-size:48px;font-weight:800;font-family:'DM Mono',monospace;color:var(--warn)">42</div>
+      <div style="font-size:12px;color:var(--text2)">/ 100 — Zone de vigilance</div>
+      <div style="margin-top:12px;"><div class="halal-bar-bg"><div class="halal-bar-fill" style="width:42%;background:linear-gradient(90deg,var(--warn),var(--accent3))"></div></div></div>
+    </div>
+    <div class="risk-card">
+      <div class="metric-label" style="margin-bottom:10px">Part halal</div>
+      <div style="font-size:48px;font-weight:800;font-family:'DM Mono',monospace;color:var(--up)">17.5%</div>
+      <div style="font-size:12px;color:var(--text2)">Objectif : 30%</div>
+      <div style="margin-top:12px;">
+        <div class="halal-bar-bg"><div class="halal-bar-fill" style="width:17.5%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace"><span>0%</span><span style="color:var(--up)">▼ 30%</span><span>100%</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec">Alertes prioritaires</div>
+  <div class="alert a-red"><strong>Surconcentration BICB — 34.15%</strong><br>BIIC BN en moins-value (-150k FCFA). Ordre limite 5 700 FCFA / 400 titres recommandé.</div>
+  <div class="alert a-warn"><strong>5 positions bancaires non validées charia (82%)</strong><br>BOA BN, BICI CI, BIIC BN, ECOBANK ETI, SGCI — consultation savant requise.</div>
+  <div class="alert a-ok"><strong>Positions halal conformes — SNTS, SIVC, TTLC, NTLC</strong><br>Objectif : porter la part halal à 30%+ via renforcements progressifs.</div>
+  <div class="sec">Répartition du portefeuille</div>
+  <div class="chart-container">
+    <div style="font-size:13px;font-weight:600;margin-bottom:16px;color:var(--text2)">Pondération par titre</div>
+    <div class="chart-wrap"><canvas id="chartDonut"></canvas></div>
+    <div class="chart-legend" id="chart-legend"></div>
+  </div>
+</div>
+</div>
+
+<!-- PAGE : PORTEFEUILLE -->
+<div class="page" id="page-portfolio">
+<div class="container">
+  <div class="metrics">
+    <div class="metric green"><div class="metric-label">Valeur titres</div><div class="metric-val">14.3M</div><div class="metric-sub">FCFA</div></div>
+    <div class="metric"><div class="metric-label">Liquidités</div><div class="metric-val">755k</div><div class="metric-sub">FCFA</div></div>
+    <div class="metric"><div class="metric-label">Positions</div><div class="metric-val">10</div><div class="metric-sub">lignes</div></div>
+    <div class="metric"><div class="metric-label">Meilleure PV</div><div class="metric-val up">+602k</div><div class="metric-sub">SGCI</div></div>
+  </div>
+  <div class="sec">Positions détaillées</div>
+  <div class="table-wrap"><table><thead><tr><th>Titre</th><th>Qté</th><th>CMP</th><th>Cours</th><th>+/- Value</th><th>Poids</th><th>Halal</th></tr></thead><tbody id="positions-table"></tbody></table></div>
+  <div class="sec">Plus-values latentes</div>
+  <div class="chart-container"><div style="font-size:13px;font-weight:600;margin-bottom:16px;color:var(--text2)">PV latentes par position (k FCFA)</div><div class="chart-wrap"><canvas id="chartBar"></canvas></div></div>
+</div>
+</div>
+
+<!-- PAGE : ACTIONS PRIORITAIRES -->
+<div class="page" id="page-actions">
+<div class="container">
+
+  <!-- Banner token -->
+  <div class="token-banner" id="token-banner">
+    <div style="font-size:20px">🔑</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:600;color:var(--warn)">Token GitHub non configuré</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px">Configure ton token pour sauvegarder les mises à jour directement dans GitHub.</div>
+    </div>
+    <button class="btn btn-warn btn-sm" onclick="openModal('modal-token')">Configurer</button>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <div class="progress-title">Progression des actions</div>
+      <div class="progress-count" id="actions-count">—</div>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="actions-progress" style="width:0%"></div></div>
+    <div class="progress-labels"><span id="actions-done-label">0 réalisées</span><span id="actions-total-label">0 au total</span></div>
+  </div>
+
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="filterActions('tous',this)">Toutes</button>
+    <button class="filter-btn" onclick="filterActions('en_attente',this)">En attente</button>
+    <button class="filter-btn" onclick="filterActions('en_cours',this)">En cours</button>
+    <button class="filter-btn" onclick="filterActions('realise',this)">Réalisées</button>
+    <button class="btn-add" style="margin-left:auto" onclick="openModal('modal-new')">+ Nouvelle action</button>
+  </div>
+
+  <div id="actions-list"></div>
+</div>
+</div>
+
+<!-- PAGE : OPPORTUNITÉS -->
+<div class="page" id="page-opportunites">
+<div class="container">
+  <div class="alert a-info" style="margin-bottom:1.5rem"><strong>Sources :</strong> TOP 10 BNI Finances + scan BRVM halal + analyse technique.</div>
+  <div class="sec">Top opportunités halal</div>
+  <div class="opp-grid" id="opp-grid"></div>
+</div>
+</div>
+
+<!-- PAGE : DIVIDENDES -->
+<div class="page" id="page-dividendes">
+<div class="container">
+  <div class="alert a-warn" style="margin-bottom:1.5rem"><strong>Purification obligatoire</strong> — Les dividendes bancaires contiennent une part haram. Le montant sadaqa est calculé automatiquement.</div>
+  <div class="sec">Calendrier des dividendes</div>
+  <div class="div-grid" id="div-grid"></div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DONNÉES
+// ═══════════════════════════════════════
+const REPO_OWNER = 'habibcisse5';
+const REPO_NAME  = 'brvm-agent';
+const FILE_PATH  = 'data/suivi.json';
+
+const COLORS = {
+  BICB:'#FF4D6D',BOAB:'#00E5A0',SNTS:'#60A5FA',SGBC:'#FFB547',
+  ETIT:'#A78BFA',BICC:'#34D399',SIVC:'#FB923C',SIBC:'#94A3B8',
+  TTLC:'#F472B6',NTLC:'#38BDF8',
+};
+
+let SUIVI = {
+  derniere_maj: new Date().toISOString().split('T')[0],
+  actions: [
+    {id:'A001',titre:'Ordre limite BIIC BN',detail:'400 titres à 5 700 FCFA — BNI Finance Trade',statut:'en_attente',date_cible:null,date_realisation:null,note:'Débloque achat TTLC supplémentaire'},
+    {id:'A003',titre:'Dividende BOA BN — purification',detail:'Ex-div 5 mai · 208 085 FCFA brut · sadaqa ~149 821 FCFA',statut:'en_attente',date_cible:'2026-05-05',date_realisation:null,note:'Purification 72% des revenus haram'},
+    {id:'A005',titre:'Consultation savant halal',detail:'BOA BN, BICI CI, BIIC BN, ECOBANK ETI, SGCI, SIB CI',statut:'en_attente',date_cible:null,date_realisation:null,note:'82% du portefeuille à clarifier'},
+    {id:'A008',titre:'Surveiller ETIT',detail:'ETI TG chute -23.53% — AGE convoquée',statut:'en_cours',date_cible:null,date_realisation:null,note:'Stop-loss à 28 FCFA'},
+    {id:'A010',titre:'Investiguer CIEC (CIE CI)',detail:'TOP 10 BNI · +31% depuis jan 2025 · PER 17x',statut:'en_attente',date_cible:null,date_realisation:null,note:'Vérifier statut halal'},
+    {id:'A002',titre:'Acheter NTLC',detail:'34 titres achetés à 11 800 FCFA',statut:'realise',date_cible:'2026-04-21',date_realisation:'2026-04-15',note:'Ordre 148385'},
+    {id:'A004',titre:'Acheter TTLC',detail:'169 titres achetés à 2 840 FCFA',statut:'realise',date_cible:null,date_realisation:'2026-04-15',note:'Ordre 148384'},
+    {id:'A006',titre:'Renforcement SIVC',detail:'147 titres achetés à 2 000 FCFA',statut:'realise',date_cible:null,date_realisation:'2026-04-15',note:'Ordre 148386'},
+    {id:'A007',titre:'Vente Orange CI',detail:'30 titres soldés',statut:'realise',date_cible:null,date_realisation:'2026-04-15',note:'Position clôturée'},
+  ]
+};
+
+const POSITIONS = [
+  {ticker:'BOAB',nom:'Bank of Africa BN',qte:350,cmp:6334,cours:7500,pv:408236,poids:17.58,halal:'a_clarifier'},
+  {ticker:'BICC',nom:'BICI CI',qte:30,cmp:15919,cours:25400,pv:284437,poids:5.10,halal:'a_clarifier'},
+  {ticker:'BICB',nom:'BIIC BN',qte:1000,cmp:5250,cours:5100,pv:-150000,poids:34.15,halal:'a_clarifier'},
+  {ticker:'ETIT',nom:'Ecobank ETI',qte:52049,cmp:32,cours:33,pv:28747,poids:11.50,halal:'a_clarifier'},
+  {ticker:'SGBC',nom:'Société Générale CI',qte:50,cmp:22460,cours:34500,pv:601995,poids:11.55,halal:'a_clarifier'},
+  {ticker:'SIBC',nom:'SIB CI',qte:7,cmp:4437,cours:6900,pv:17241,poids:0.32,halal:'a_clarifier'},
+  {ticker:'SNTS',nom:'Sonatel SN',qte:75,cmp:28392,cours:29000,pv:45600,poids:14.56,halal:'conforme'},
+  {ticker:'SIVC',nom:'Sucrivoire CI',qte:347,cmp:1294,cours:2040,pv:258834,poids:2.15,halal:'conforme'},
+  {ticker:'TTLC',nom:'TotalEnergies CI',qte:169,cmp:2840,cours:2795,pv:-7605,poids:3.20,halal:'conforme'},
+  {ticker:'NTLC',nom:'Nestlé CI',qte:34,cmp:11800,cours:12000,pv:6800,poids:2.70,halal:'conforme'},
+];
+
+const OPPORTUNITES = [
+  {ticker:'SCRC',nom:'Sucrivoire CI (SCRC)',secteur:'Agro',conviction:5,per:8.0,div:3.5,cours:2040,signal:'Momentum haussier',bni:true,rang:1},
+  {ticker:'SAPH',nom:'SAPH CI',secteur:'Agro',conviction:4,per:7.5,div:4.0,cours:7300,signal:'Correction sur support',bni:false,rang:null},
+  {ticker:'PALC',nom:'Palm CI',secteur:'Agro',conviction:4,per:8.0,div:5.5,cours:8100,signal:'PER attractif 8x',bni:false,rang:null},
+  {ticker:'CIEC',nom:'CIE Côte d\'Ivoire',secteur:'Utilitaire',conviction:3,per:17.0,div:3.8,cours:3100,signal:'+31% YTD',bni:true,rang:9},
+  {ticker:'ONTBF',nom:'Onatel BF',secteur:'Télécom',conviction:3,per:12.7,div:5.0,cours:2720,signal:'Consolidation',bni:false,rang:null},
+];
+
+const DIVIDENDES = [
+  {ticker:'BOAB',nom:'Bank of Africa BN',div_net:594.53,qte:350,total:208085,ex_div:'05/05/2026',paiement:'06/05/2026',rendement:6.91,purification:true,pct_haram:72,sadaqa:149821,net_halal:58264},
+  {ticker:'SNTS',nom:'Sonatel SN',div_net:1740,qte:75,total:130500,ex_div:'22/05/2026',paiement:'25/05/2026',rendement:6.11,purification:false,pct_haram:0,sadaqa:0,net_halal:130500},
+  {ticker:'ETIT',nom:'Ecobank CI',div_net:781,qte:52049,total:40650319,ex_div:'21/05/2026',paiement:'22/05/2026',rendement:4.81,purification:true,pct_haram:70,sadaqa:null,net_halal:null},
+];
+
+// ═══════════════════════════════════════
+// TOKEN GITHUB
+// ═══════════════════════════════════════
+let githubToken = localStorage.getItem('brvm_gh_token') || '';
+let actionEnCours = null;
+
+function sauvegarderToken() {
+  const val = document.getElementById('token-input').value.trim();
+  if (!val.startsWith('ghp_') && !val.startsWith('github_pat_')) {
+    showToast('Token invalide — doit commencer par ghp_ ou github_pat_', 'error'); return;
+  }
+  githubToken = val;
+  localStorage.setItem('brvm_gh_token', val);
+  closeModal('modal-token');
+  updateTokenBanner();
+  showToast('Token GitHub enregistré ✓', 'success');
+}
+
+function updateTokenBanner() {
+  const banner = document.getElementById('token-banner');
+  if (githubToken) banner.classList.add('hidden');
+  else banner.classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════
+// GITHUB API
+// ═══════════════════════════════════════
+async function getSuiviSha() {
+  const r = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+    headers: { Authorization: `Bearer ${githubToken}`, Accept: 'application/vnd.github+json' }
+  });
+  if (!r.ok) throw new Error('Impossible de lire le fichier GitHub');
+  const data = await r.json();
+  return { sha: data.sha, content: JSON.parse(atob(data.content.replace(/\n/g, ''))) };
+}
+
+async function saveSuiviToGitHub(suivi) {
+  if (!githubToken) { openModal('modal-token'); return false; }
+  try {
+    showToast('Sauvegarde en cours...', 'success');
+    const { sha } = await getSuiviSha();
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(suivi, null, 2))));
+    const r = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${githubToken}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `update suivi — ${new Date().toISOString().split('T')[0]}`, content, sha })
+    });
+    if (!r.ok) { const e = await r.json(); throw new Error(e.message || 'Erreur GitHub'); }
+    showToast('Sauvegardé sur GitHub ✓', 'success');
+    return true;
+  } catch (e) {
+    showToast('Erreur : ' + e.message, 'error');
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════
+// MARQUER RÉALISÉ
+// ═══════════════════════════════════════
+function ouvrirMarquerRealise(actionId) {
+  const action = SUIVI.actions.find(a => a.id === actionId);
+  if (!action) return;
+  actionEnCours = actionId;
+  document.getElementById('modal-action-titre').textContent = action.titre;
+  document.getElementById('modal-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-note').value = action.note || '';
+  openModal('modal-realise');
+}
+
+async function confirmerRealise() {
+  const date = document.getElementById('modal-date').value;
+  const note = document.getElementById('modal-note').value;
+  const action = SUIVI.actions.find(a => a.id === actionEnCours);
+  if (!action) return;
+
+  action.statut = 'realise';
+  action.date_realisation = date;
+  action.note = note;
+  SUIVI.derniere_maj = new Date().toISOString().split('T')[0];
+
+  closeModal('modal-realise');
+  const ok = await saveSuiviToGitHub(SUIVI);
+  if (ok) { renderActions(); updateBadge(); }
+}
+
+// ═══════════════════════════════════════
+// EN COURS
+// ═══════════════════════════════════════
+async function marquerEnCours(actionId) {
+  const action = SUIVI.actions.find(a => a.id === actionId);
+  if (!action) return;
+  action.statut = 'en_cours';
+  SUIVI.derniere_maj = new Date().toISOString().split('T')[0];
+  const ok = await saveSuiviToGitHub(SUIVI);
+  if (ok) { renderActions(); updateBadge(); }
+}
+
+// ═══════════════════════════════════════
+// NOUVELLE ACTION
+// ═══════════════════════════════════════
+async function confirmerNouvelle() {
+  const titre  = document.getElementById('new-titre').value.trim();
+  const detail = document.getElementById('new-detail').value.trim();
+  const statut = document.getElementById('new-statut').value;
+  const date   = document.getElementById('new-date').value || null;
+  const note   = document.getElementById('new-note').value.trim();
+
+  if (!titre) { showToast('Le titre est obligatoire', 'error'); return; }
+
+  const newId = 'A' + String(SUIVI.actions.length + 1).padStart('3','0');
+  SUIVI.actions.push({ id:newId, titre, detail, statut, date_cible:date, date_realisation:null, note });
+  SUIVI.derniere_maj = new Date().toISOString().split('T')[0];
+
+  closeModal('modal-new');
+  // Reset form
+  ['new-titre','new-detail','new-date','new-note'].forEach(id => document.getElementById(id).value = '');
+
+  const ok = await saveSuiviToGitHub(SUIVI);
+  if (ok) { renderActions(); updateBadge(); }
+}
+
+// ═══════════════════════════════════════
+// RENDER ACTIONS
+// ═══════════════════════════════════════
+let filtreActif = 'tous';
+
+function filterActions(filtre, btn) {
+  filtreActif = filtre;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderActions();
+}
+
+function updateBadge() {
+  const attente = SUIVI.actions.filter(a => a.statut === 'en_attente').length;
+  const badge = document.getElementById('badge-attente');
+  badge.textContent = attente > 0 ? attente : '';
+}
+
+function renderActions() {
+  const total = SUIVI.actions.length;
+  const done  = SUIVI.actions.filter(a => a.statut === 'realise').length;
+  const pct   = total ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('actions-count').textContent = `${done}/${total}`;
+  document.getElementById('actions-progress').style.width = pct + '%';
+  document.getElementById('actions-done-label').textContent = `${done} réalisée${done > 1 ? 's' : ''}`;
+  document.getElementById('actions-total-label').textContent = `${total} au total`;
+
+  const visible = filtreActif === 'tous' ? SUIVI.actions : SUIVI.actions.filter(a => a.statut === filtreActif);
+  const liste = document.getElementById('actions-list');
+
+  if (!visible.length) {
+    liste.innerHTML = '<div style="text-align:center;color:var(--text2);font-size:13px;padding:2rem 0">Aucune action</div>';
+    return;
+  }
+
+  liste.innerHTML = visible.map(a => {
+    const numClass   = a.statut==='realise'?'num-done':a.statut==='en_cours'?'num-cours':'num-wait';
+    const badgeClass = a.statut==='realise'?'b-done':a.statut==='en_cours'?'b-cours':'b-wait';
+    const badgeLabel = a.statut==='realise'?'Réalisé ✓':a.statut==='en_cours'?'En cours':'En attente';
+    const isDone = a.statut==='realise'?'done':'';
+    const dateStr = a.date_realisation ? `✓ ${a.date_realisation}` : (a.date_cible ? `📅 ${a.date_cible}` : '');
+
+    const btns = a.statut !== 'realise' ? `
+      <div class="action-btns">
+        ${a.statut === 'en_attente' ? `<button class="btn btn-warn btn-sm" onclick="marquerEnCours('${a.id}')">En cours</button>` : ''}
+        <button class="btn btn-success btn-sm" onclick="ouvrirMarquerRealise('${a.id}')">✓ Réalisé</button>
+      </div>` : '';
+
+    return `<div class="action-card ${isDone}">
+      <div class="action-num ${numClass}">${a.id}</div>
+      <div class="action-body">
+        <div class="action-title">${a.titre}</div>
+        <div class="action-detail">${a.detail}</div>
+        ${a.note ? `<div class="action-note">${a.note}</div>` : ''}
+        <div class="action-meta">
+          <span class="badge ${badgeClass}">${badgeLabel}</span>
+          ${dateStr ? `<span style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">${dateStr}</span>` : ''}
+        </div>
+      </div>
+      ${btns}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// RENDER POSITIONS
+// ═══════════════════════════════════════
+function renderPositions() {
+  document.getElementById('positions-table').innerHTML = POSITIONS.map(p => {
+    const signe = p.pv >= 0 ? '+' : '';
+    const pvClass = p.pv >= 0 ? 'up' : 'dn';
+    const couleur = p.poids > 30 ? '#FF4D6D' : p.poids > 20 ? '#FFB547' : '#00E5A0';
+    const badge = p.halal==='conforme' ? '<span class="badge b-halal">Halal</span>' : '<span class="badge b-warn">À clarifier</span>';
+    return `<tr>
+      <td><strong>${p.ticker}</strong><br><span style="font-size:11px;color:var(--text2)">${p.nom}</span></td>
+      <td style="font-family:'DM Mono',monospace">${p.qte.toLocaleString('fr-FR')}</td>
+      <td style="font-family:'DM Mono',monospace">${p.cmp.toLocaleString('fr-FR')}</td>
+      <td style="font-family:'DM Mono',monospace">${p.cours.toLocaleString('fr-FR')}</td>
+      <td class="${pvClass}" style="font-family:'DM Mono',monospace">${signe}${Math.round(p.pv).toLocaleString('fr-FR')}</td>
+      <td><span style="font-weight:600;color:${couleur};font-family:'DM Mono',monospace">${p.poids}%</span><div class="bar-bg"><div class="bar-f" style="width:${Math.min(p.poids,100)}%;background:${couleur}"></div></div></td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// RENDER OPPORTUNITÉS
+// ═══════════════════════════════════════
+function renderOpportunites() {
+  document.getElementById('opp-grid').innerHTML = OPPORTUNITES.map(o => {
+    const stars = '★'.repeat(o.conviction) + '☆'.repeat(5-o.conviction);
+    return `<div class="opp-card ${o.bni?'bni':''}">
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">${o.ticker}</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px">${o.nom} · <span style="color:var(--info)">${o.secteur}</span></div>
+      <div style="color:var(--warn);font-size:13px;margin-bottom:8px">${stars}</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:var(--text2)">Cours</span><span style="font-weight:600;font-family:'DM Mono',monospace">${o.cours.toLocaleString('fr-FR')} FCFA</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:var(--text2)">PER</span><span style="font-weight:600;font-family:'DM Mono',monospace">${o.per}x</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:var(--text2)">Dividende</span><span style="font-weight:600;color:var(--up);font-family:'DM Mono',monospace">${o.div}%</span></div>
+      <div style="font-size:11px;color:var(--text2);margin-top:6px">${o.signal}</div>
+      ${o.bni?`<div style="margin-top:8px;font-size:10px;color:var(--accent);font-family:'DM Mono',monospace">TOP ${o.rang} BNI FINANCES</div>`:''}
+      <div style="margin-top:10px"><span class="badge b-halal">Halal ✓</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// RENDER DIVIDENDES
+// ═══════════════════════════════════════
+function renderDividendes() {
+  document.getElementById('div-grid').innerHTML = DIVIDENDES.map(d => {
+    const purif = d.purification && d.sadaqa
+      ? `<div style="margin-top:10px;background:var(--dn-bg);border-radius:8px;padding:8px 12px;font-size:11px;color:#FFB3C0;border:1px solid rgba(255,77,109,.15)">
+          <strong>Purification requise</strong><br>
+          Taux haram : ${d.pct_haram}% · Sadaqa : <strong>${d.sadaqa.toLocaleString('fr-FR')} FCFA</strong><br>
+          Net halal : ${d.net_halal?d.net_halal.toLocaleString('fr-FR')+' FCFA':'À calculer'}
+         </div>`
+      : `<div style="margin-top:10px;font-size:11px;color:var(--up)">✓ Aucune purification requise</div>`;
+    return `<div class="div-card">
+      <div style="font-size:16px;font-weight:800;margin-bottom:4px">${d.ticker} <span style="font-size:13px;color:var(--text2);font-weight:400">${d.nom}</span></div>
+      <div style="font-size:24px;font-weight:800;color:var(--warn);font-family:'DM Mono',monospace">${d.div_net.toLocaleString('fr-FR')} <span style="font-size:14px;color:var(--text2);font-weight:400">FCFA/titre</span></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${d.qte.toLocaleString('fr-FR')} titres → <strong style="color:var(--text)">${d.total.toLocaleString('fr-FR')} FCFA brut</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;color:var(--text2)"><span>Ex-dividende</span><span style="color:var(--text);font-family:'DM Mono',monospace">${d.ex_div}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;color:var(--text2)"><span>Paiement</span><span style="color:var(--text);font-family:'DM Mono',monospace">${d.paiement}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2)"><span>Rendement</span><span style="color:var(--up);font-family:'DM Mono',monospace">${d.rendement}%</span></div>
+      ${purif}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════
+function initCharts() {
+  const labels = POSITIONS.map(p => p.ticker);
+  const values = POSITIONS.map(p => p.poids);
+  const colors = POSITIONS.map(p => COLORS[p.ticker] || '#6B7280');
+
+  new Chart(document.getElementById('chartDonut'), {
+    type:'doughnut',
+    data:{labels,datasets:[{data:values,backgroundColor:colors,borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label} : ${ctx.parsed.toFixed(1)}%`}}}}
+  });
+
+  document.getElementById('chart-legend').innerHTML = POSITIONS.map(p =>
+    `<div class="chart-legend-item"><div class="chart-dot" style="background:${COLORS[p.ticker]||'#6B7280'}"></div>${p.ticker} ${p.poids}%</div>`
+  ).join('');
+
+  const pvPos = POSITIONS.filter(p => p.pv !== 0);
+  new Chart(document.getElementById('chartBar'), {
+    type:'bar',
+    data:{labels:pvPos.map(p=>p.ticker),datasets:[{data:pvPos.map(p=>Math.round(p.pv/1000)),backgroundColor:pvPos.map(p=>p.pv>=0?'rgba(0,229,160,.7)':'rgba(255,77,109,.7)'),borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y}k FCFA`}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8892A4',font:{family:'DM Mono',size:11}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8892A4',font:{family:'DM Mono',size:11},callback:v=>v+'k'}}}}
+  });
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.getElementById('last-update').textContent = new Date().toLocaleDateString('fr-FR');
+updateTokenBanner();
+renderPositions();
+renderActions();
+renderOpportunites();
+renderDividendes();
+initCharts();
+updateBadge();
+</script>
 </body>
 </html>
