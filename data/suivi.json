@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-04-16",
+  "derniere_maj": "2026-05-27",
   "actions": [
     {
       "id": "A001",
@@ -63,8 +63,94 @@
       "date_cible": null,
       "date_realisation": "2026-04-15",
       "note": ""
+    },
+    {
+      "id": "A008",
+      "titre": "Surveiller ORGT",
+      "detail": "ORGT — baisse continue sous l'effet de l'absence de dividende",
+      "statut": "en_attente",
+      "date_cible": null,
+      "date_realisation": null,
+      "note": "Auto-ajouté le 2026-05-27"
     }
   ],
-  "statuts_possibles": ["en_attente", "en_cours", "realise", "annule"],
-  "portefeuille_ref": "data/portefeuille.json"
+  "statuts_possibles": [
+    "en_attente",
+    "en_cours",
+    "realise",
+    "annule"
+  ],
+  "portefeuille_ref": "data/portefeuille.json",
+  "dividendes_a_venir": [
+    {
+      "ticker": "BOAM",
+      "dividende_net": 305.04,
+      "ex_div": "2026-06-02",
+      "paiement": "2026-06-03",
+      "rendement_pct": 6.5
+    },
+    {
+      "ticker": "SCCI",
+      "dividende_net": 152.02,
+      "ex_div": "2026-05-29",
+      "paiement": "2026-06-01",
+      "rendement_pct": 4.35
+    },
+    {
+      "ticker": "BOAB",
+      "dividende_net": 585,
+      "ex_div": "2026-05-22",
+      "paiement": "2026-05-26",
+      "rendement_pct": 6.22
+    },
+    {
+      "ticker": "BOAS",
+      "dividende_net": 450,
+      "ex_div": "2026-05-29",
+      "paiement": "2026-06-01",
+      "rendement_pct": 5.92
+    },
+    {
+      "ticker": "BOAC",
+      "dividende_net": 594.53,
+      "ex_div": "2026-05-05",
+      "paiement": "2026-05-06",
+      "rendement_pct": 6.89
+    },
+    {
+      "ticker": "BICC",
+      "dividende_net": 1157,
+      "ex_div": "2026-09-29",
+      "paiement": "2026-09-30",
+      "rendement_pct": 4.38
+    },
+    {
+      "ticker": "CBIBC",
+      "dividende_net": 900,
+      "ex_div": "2026-07-06",
+      "paiement": "2026-07-07",
+      "rendement_pct": 4.52
+    },
+    {
+      "ticker": "ECOC",
+      "dividende_net": 781,
+      "ex_div": "2026-05-22",
+      "paiement": "2026-05-22",
+      "rendement_pct": 4.79
+    },
+    {
+      "ticker": "SNTS",
+      "dividende_net": 1740,
+      "ex_div": "2026-05-22",
+      "paiement": "2026-05-25",
+      "rendement_pct": 6.02
+    },
+    {
+      "ticker": "ONTBF",
+      "dividende_net": 145.32,
+      "ex_div": "2026-06-12",
+      "paiement": "2026-06-15",
+      "rendement_pct": 5.2
+    }
+  ]
 }
