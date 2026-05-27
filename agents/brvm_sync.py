@@ -151,7 +151,7 @@ def analyser_pdf(pdf_bytes):
     pdf_b64 = base64.standard_b64encode(pdf_bytes).decode("utf-8")
 
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         max_tokens=4000,
         messages=[
             {
