@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-05-27",
+  "derniere_maj": "2026-06-01",
   "actions": [
     {
       "id": "A001",
@@ -151,6 +151,20 @@
       "ex_div": "2026-06-12",
       "paiement": "2026-06-15",
       "rendement_pct": 5.2
+    },
+    {
+      "ticker": "SICC",
+      "dividende_net": 152.02,
+      "ex_div": "2026-05-29",
+      "paiement": "2026-06-01",
+      "rendement_pct": 4.35
+    },
+    {
+      "ticker": "CBIBF",
+      "dividende_net": 900,
+      "ex_div": "2026-07-06",
+      "paiement": "2026-07-07",
+      "rendement_pct": 4.52
     }
   ]
 }
