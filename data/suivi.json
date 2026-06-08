@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-06-01",
+  "derniere_maj": "2026-06-08",
   "actions": [
     {
       "id": "A001",
@@ -72,6 +72,15 @@
       "date_cible": null,
       "date_realisation": null,
       "note": "Auto-ajouté le 2026-05-27"
+    },
+    {
+      "id": "A009",
+      "titre": "Surveiller ETIT",
+      "detail": "ETIT — baisse -3,33% hebdo",
+      "statut": "en_attente",
+      "date_cible": null,
+      "date_realisation": null,
+      "note": "Auto-ajouté le 2026-06-08"
     }
   ],
   "statuts_possibles": [
@@ -161,6 +170,34 @@
     },
     {
       "ticker": "CBIBF",
+      "dividende_net": 900,
+      "ex_div": "2026-07-06",
+      "paiement": "2026-07-07",
+      "rendement_pct": 4.52
+    },
+    {
+      "ticker": "SICBC",
+      "dividende_net": 152.02,
+      "ex_div": "2026-05-29",
+      "paiement": "2026-06-01",
+      "rendement_pct": 4.35
+    },
+    {
+      "ticker": "ONATEL",
+      "dividende_net": 145.32,
+      "ex_div": "2026-06-12",
+      "paiement": "2026-06-15",
+      "rendement_pct": 5.2
+    },
+    {
+      "ticker": "BOABF",
+      "dividende_net": 397,
+      "ex_div": "2026-04-22",
+      "paiement": "2026-04-23",
+      "rendement_pct": 7.35
+    },
+    {
+      "ticker": "CRBF",
       "dividende_net": 900,
       "ex_div": "2026-07-06",
       "paiement": "2026-07-07",
