@@ -637,6 +637,125 @@ def envoyer_email(html, destinataire):
         print(f"[synthese] Erreur email : {e}")
 
 
+DASHBOARD_URL = "https://habibcisse5.github.io/brvm-agent/"
+
+
+def _fmt_fcfa(n):
+    try:
+        return f"{int(round(float(n))):,}".replace(",", " ")
+    except Exception:
+        return str(n)
+
+
+def generer_email(donnees):
+    """Corps d'email léger (sans JS) : résumé + bouton cliquable vers le dashboard."""
+    veille       = donnees.get("veille", {})
+    halal        = donnees.get("halal", {})
+    risque_data  = donnees.get("risque", {})
+    suivi        = donnees.get("suivi", {})
+    date_str     = donnees.get("date", datetime.now().strftime("%d/%m/%Y"))
+
+    positions    = veille.get("positions", [])
+    halal_res    = halal.get("resultats", {})
+    total_valeur = veille.get("total_valeur", 0)
+    liquidite    = charger_json("portefeuille.json").get("liquidite_fcfa", 0)
+    score_risque = risque_data.get("score_risque", 0)
+    poids_halal  = risque_data.get("poids_halal", 0)
+    actions      = suivi.get("actions", [])
+
+    risk_color  = "#C0392B" if score_risque >= 70 else "#B7791F" if score_risque >= 40 else "#1E7E34"
+    halal_color = "#1E7E34" if poids_halal >= 30 else "#B7791F"
+
+    alertes = list(risque_data.get("alertes", []))
+    for a in halal.get("alertes", []):
+        if a.get("niveau") == "ATTENTION":
+            alertes.append(a)
+    if alertes:
+        alertes_rows = "".join(
+            '<tr><td style="padding:9px 12px;border-left:3px solid #B7791F;background:#FFF8E6;'
+            'font-size:13px;color:#5b4a00;border-radius:0 6px 6px 0;">'
+            '<strong>' + str(a.get("ticker", "")) + '</strong> — ' + str(a.get("message", "")) +
+            '</td></tr><tr><td style="height:6px"></td></tr>'
+            for a in alertes
+        )
+    else:
+        alertes_rows = ('<tr><td style="padding:9px 12px;border-left:3px solid #1E7E34;background:#EAF7EE;'
+                        'font-size:13px;color:#1E5631;border-radius:0 6px 6px 0;">'
+                        'Aucune alerte critique cette semaine.</td></tr>')
+
+    prioritaires = [a for a in actions if a.get("statut") in ("en_attente", "en_cours")]
+    if prioritaires:
+        actions_rows = "".join(
+            '<tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px;color:#333;">'
+            '<strong>' + str(a.get("titre", "")) + '</strong>'
+            '<div style="color:#777;font-size:12px;margin-top:2px;">' + str(a.get("detail", "")) + '</div>'
+            '</td></tr>'
+            for a in prioritaires
+        )
+    else:
+        actions_rows = '<tr><td style="padding:10px 12px;font-size:13px;color:#777;">Aucune action en attente.</td></tr>'
+
+    nb_halal = sum(1 for p in positions if halal_res.get(p["ticker"], {}).get("statut") == "conforme")
+    pos_rows = ""
+    for p in positions:
+        st = halal_res.get(p["ticker"], {}).get("statut", "a_clarifier")
+        if st == "conforme":
+            badge = '<span style="background:#EAF7EE;color:#1E7E34;padding:2px 9px;border-radius:10px;font-size:11px;">Halal</span>'
+        elif st == "haram":
+            badge = '<span style="background:#FDECEC;color:#C0392B;padding:2px 9px;border-radius:10px;font-size:11px;">Haram</span>'
+        else:
+            badge = '<span style="background:#FFF8E6;color:#B7791F;padding:2px 9px;border-radius:10px;font-size:11px;">À clarifier</span>'
+        pos_rows += ('<tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;color:#222;">'
+                     '<strong>' + str(p.get("ticker", "")) + '</strong> '
+                     '<span style="color:#888;">' + str(p.get("nom", "")) + '</span></td>'
+                     '<td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;text-align:right;">' + badge + '</td></tr>')
+
+    return f"""<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f2f3f5;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f3f5;padding:24px 0;"><tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+  <tr><td style="background:#0A0E1A;padding:22px 28px;">
+    <div style="color:#ffffff;font-size:18px;font-weight:700;">Synthèse BRVM</div>
+    <div style="color:#8892A4;font-size:13px;margin-top:3px;">M. Cissé Habib · {date_str}</div>
+  </td></tr>
+  <tr><td style="padding:24px 22px 8px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="50%" style="padding:6px;"><div style="background:#f7f8fa;border-radius:10px;padding:14px;"><div style="font-size:11px;color:#888;text-transform:uppercase;">Valeur titres</div><div style="font-size:19px;font-weight:800;color:#111;margin-top:4px;">{_fmt_fcfa(total_valeur)} <span style="font-size:12px;color:#888;font-weight:400;">FCFA</span></div></div></td>
+        <td width="50%" style="padding:6px;"><div style="background:#f7f8fa;border-radius:10px;padding:14px;"><div style="font-size:11px;color:#888;text-transform:uppercase;">Liquidités</div><div style="font-size:19px;font-weight:800;color:#111;margin-top:4px;">{_fmt_fcfa(liquidite)} <span style="font-size:12px;color:#888;font-weight:400;">FCFA</span></div></div></td>
+      </tr>
+      <tr>
+        <td width="50%" style="padding:6px;"><div style="background:#f7f8fa;border-radius:10px;padding:14px;"><div style="font-size:11px;color:#888;text-transform:uppercase;">Score risque</div><div style="font-size:19px;font-weight:800;color:{risk_color};margin-top:4px;">{score_risque}/100</div></div></td>
+        <td width="50%" style="padding:6px;"><div style="background:#f7f8fa;border-radius:10px;padding:14px;"><div style="font-size:11px;color:#888;text-transform:uppercase;">Part halal</div><div style="font-size:19px;font-weight:800;color:{halal_color};margin-top:4px;">{poids_halal}%</div></div></td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td align="center" style="padding:14px 28px 24px;">
+    <a href="{DASHBOARD_URL}" style="display:inline-block;background:#7C6FFF;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 34px;border-radius:10px;">Voir le dashboard complet →</a>
+    <div style="font-size:11px;color:#aaa;margin-top:8px;">{DASHBOARD_URL}</div>
+  </td></tr>
+  <tr><td style="padding:0 28px 8px;">
+    <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Alertes</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">{alertes_rows}</table>
+  </td></tr>
+  <tr><td style="padding:16px 28px 8px;">
+    <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Actions prioritaires</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fafbfc;border-radius:10px;">{actions_rows}</table>
+  </td></tr>
+  <tr><td style="padding:16px 28px 24px;">
+    <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Positions ({nb_halal}/{len(positions)} halal)</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fafbfc;border-radius:10px;">{pos_rows}</table>
+  </td></tr>
+  <tr><td style="background:#0A0E1A;padding:16px 28px;text-align:center;">
+    <a href="{DASHBOARD_URL}" style="color:#7C6FFF;text-decoration:none;font-size:13px;font-weight:600;">Ouvrir le dashboard BRVM</a>
+    <div style="color:#586072;font-size:11px;margin-top:6px;">Rapport généré automatiquement · Agent BRVM · GitHub Actions</div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>"""
+
+
 def run(donnees):
     """Point d'entrée principal"""
     print("[synthese] Génération du dashboard v3...")
@@ -644,7 +763,7 @@ def run(donnees):
 
     destinataire = os.environ.get("REPORT_EMAIL", "")
     if destinataire:
-        envoyer_email(html, destinataire)
+        envoyer_email(generer_email(donnees), destinataire)
 
     print("[synthese] Terminé")
     return html
