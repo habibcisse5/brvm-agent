@@ -80,7 +80,7 @@ def run():
     haram_detectes = [
         a["ticker"] for a in data_halal["alertes"]
         if a["niveau"] == "BLOQUANT"
-        and data_halal["resultats"].get(a["ticker"], {}).get("verdict") == "HARAM"
+        and data_halal["resultats"].get(a["ticker"], {}).get("statut") == "haram"
     ]
     if haram_detectes:
         print(f"\n[VETO HARAM] Bloqués : {haram_detectes}")
