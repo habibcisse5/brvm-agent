@@ -124,7 +124,7 @@ def verifier_diversification(positions, halal_data):
     # Calcul part halal
     poids_halal = sum(
         p["poids"] for p in positions
-        if halal_data.get(p["ticker"], {}).get("verdict") == "CONFORME"
+        if halal_data.get(p["ticker"], {}).get("statut") == "conforme"
     )
 
     if poids_halal < LIMITES["halal_min_pct"]:
@@ -183,7 +183,7 @@ def run(cours, positions, halal_data=None):
     for ticker, data in halal_data.items():
         if isinstance(data, dict):
             halal_format[ticker] = {
-                "verdict": data.get("verdict", "INCONNU"),
+                "statut": data.get("statut", "inconnu"),
                 "secteur": data.get("secteur", "inconnu"),
             }
 
@@ -236,15 +236,15 @@ if __name__ == "__main__":
         {"ticker": "SIBC", "cours": 7000, "cmp": 4437, "pv":   18000, "poids": 0.3},
     ]
     halal_test = {
-        "SNTS": {"verdict": "CONFORME",     "secteur": "telecom"},
-        "SIVC": {"verdict": "CONFORME",     "secteur": "agro"},
-        "BICB": {"verdict": "NON_CONFORME", "secteur": "banque"},
-        "BOAB": {"verdict": "NON_CONFORME", "secteur": "banque"},
-        "SGBC": {"verdict": "NON_CONFORME", "secteur": "banque"},
-        "ETIT": {"verdict": "NON_CONFORME", "secteur": "banque"},
-        "SNTS": {"verdict": "CONFORME",     "secteur": "telecom"},
-        "BICC": {"verdict": "NON_CONFORME", "secteur": "banque"},
-        "SIBC": {"verdict": "NON_CONFORME", "secteur": "banque"},
+        "SNTS": {"statut": "conforme",     "secteur": "telecom"},
+        "SIVC": {"statut": "conforme",     "secteur": "agro"},
+        "BICB": {"statut": "a_clarifier", "secteur": "banque"},
+        "BOAB": {"statut": "a_clarifier", "secteur": "banque"},
+        "SGBC": {"statut": "a_clarifier", "secteur": "banque"},
+        "ETIT": {"statut": "a_clarifier", "secteur": "banque"},
+        "SNTS": {"statut": "conforme",     "secteur": "telecom"},
+        "BICC": {"statut": "a_clarifier", "secteur": "banque"},
+        "SIBC": {"statut": "a_clarifier", "secteur": "banque"},
     }
 
     data = run(cours_test, positions_test, halal_test)
