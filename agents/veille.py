@@ -1,16 +1,17 @@
 """
 veille.py — Agent de veille marché BRVM
-Récupère les cours en temps réel depuis brvm.org.
-Les positions (tickers, quantités, CMP) sont chargées depuis
-data/portefeuille.json — SOURCE UNIQUE DE VÉRITÉ (plus de doublon en dur).
+Positions ET cours proviennent de data/portefeuille.json — SOURCE UNIQUE DE VÉRITÉ
+(relevé BNI Finance Trade).
+
+Le scraping brvm.org a été RETIRÉ : trop peu fiable (il attribuait parfois à un
+titre le cours d'un autre, corrompant tout le portefeuille — total à 144M, faux
+stop-loss, etc.). Pour rafraîchir les cours, mettre à jour 'cours_ref' dans
+portefeuille.json depuis le relevé BNI.
 """
 
-import re
 import json
-import requests
 from pathlib import Path
 from datetime import datetime
-from bs4 import BeautifulSoup
 
 DATA_DIR     = Path(__file__).parent.parent / "data"
 PORTEFEUILLE = DATA_DIR / "portefeuille.json"
@@ -31,36 +32,9 @@ def _cmp(p):
     return p.get("cmp", p.get("cmp_moyen", 0))
 
 
-def fetch_cours_brvm(tickers, fallback):
-    """Scrape les cours depuis brvm.org. Repli sur cours_ref du portefeuille."""
-    url = "https://www.brvm.org/fr/cours-actions/0"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    cours = {}
-
-    try:
-        r = requests.get(url, headers=headers, timeout=15)
-        r.raise_for_status()
-        texte = BeautifulSoup(r.text, "html.parser").get_text()
-        for ticker in tickers:
-            idx = texte.find(ticker)
-            if idx != -1:
-                fragment = texte[idx:idx + 60]
-                for m in re.finditer(r"[\d\s]+(?:,\d+)?", fragment):
-                    val = m.group().replace(" ", "").replace(",", ".")
-                    try:
-                        cours[ticker] = int(float(val))
-                        break
-                    except ValueError:
-                        pass
-    except Exception as e:
-        print(f"[veille] Erreur scraping BRVM : {e}")
-
-    # Repli : cours de référence du portefeuille (derniers connus)
-    for t in tickers:
-        if t not in cours:
-            cours[t] = fallback.get(t, 0)
-
-    return cours
+def _cours(p):
+    """Cours retenu = cours_ref du portefeuille (relevé BNI), sinon CMP."""
+    return p.get("cours_ref", _cmp(p))
 
 
 def calculer_positions(positions_data, cours):
@@ -95,23 +69,20 @@ def calculer_positions(positions_data, cours):
 
 
 def run():
-    """Point d'entrée principal."""
-    print(f"[veille] Récupération des cours BRVM — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    """Point d'entrée principal — cours issus du relevé BNI (portefeuille.json)."""
+    print(f"[veille] Lecture du portefeuille — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     porte          = charger_portefeuille()
     positions_data = porte.get("positions", [])
-    tickers        = [p["ticker"] for p in positions_data]
-    fallback       = {p["ticker"]: p.get("cours_ref", _cmp(p)) for p in positions_data}
+    cours          = {p["ticker"]: _cours(p) for p in positions_data}
 
-    cours              = fetch_cours_brvm(tickers, fallback)
     positions, total_val = calculer_positions(positions_data, cours)
-
-    print(f"[veille] {len(positions)} positions — valeur portefeuille : {total_val:,.0f} FCFA")
+    print(f"[veille] {len(positions)} positions — valeur : {total_val:,.0f} FCFA (cours : relevé BNI)")
     return {
-        "cours":         cours,
-        "positions":     positions,
-        "total_valeur":  total_val,
-        "date":          datetime.now().strftime("%Y-%m-%d"),
-        "heure":         datetime.now().strftime("%H:%M"),
+        "cours":        cours,
+        "positions":    positions,
+        "total_valeur": total_val,
+        "date":         datetime.now().strftime("%Y-%m-%d"),
+        "heure":        datetime.now().strftime("%H:%M"),
     }
 
 
