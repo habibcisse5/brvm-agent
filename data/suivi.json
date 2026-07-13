@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-06-22",
+  "derniere_maj": "2026-07-13",
   "actions": [
     {
       "id": "A001",
@@ -81,6 +81,15 @@
       "date_cible": null,
       "date_realisation": null,
       "note": "Auto-ajouté le 2026-06-08"
+    },
+    {
+      "id": "A010",
+      "titre": "Surveiller ORAT",
+      "detail": "ORAT — baisse -4,51% sous effet absence dividende",
+      "statut": "en_attente",
+      "date_cible": null,
+      "date_realisation": null,
+      "note": "Auto-ajouté le 2026-07-13"
     }
   ],
   "statuts_possibles": [
