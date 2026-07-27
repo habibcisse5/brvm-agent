@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-07-20",
+  "derniere_maj": "2026-07-27",
   "actions": [
     {
       "id": "A001",
@@ -218,6 +218,13 @@
       "ex_div": "2026-06-12",
       "paiement": "2026-06-15",
       "rendement_pct": 5.2
+    },
+    {
+      "ticker": "SICA",
+      "dividende_net": 152.02,
+      "ex_div": "2026-05-29",
+      "paiement": "2026-06-01",
+      "rendement_pct": 4.35
     }
   ]
 }
