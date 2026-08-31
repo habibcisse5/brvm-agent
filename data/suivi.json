@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-07-27",
+  "derniere_maj": "2026-08-31",
   "actions": [
     {
       "id": "A001",
@@ -225,6 +225,153 @@
       "ex_div": "2026-05-29",
       "paiement": "2026-06-01",
       "rendement_pct": 4.35
+    },
+    {
+      "ticker": "Cbibf",
+      "dividende_net": 900,
+      "ex_div": "2026-07-06",
+      "paiement": "2026-07-07",
+      "rendement_pct": 4.52
+    },
+    {
+      "ticker": "ETIT",
+      "dividende_net": 1,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 3.45
+    },
+    {
+      "ticker": "SGBC",
+      "dividende_net": 2293.28,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 6.37
+    },
+    {
+      "ticker": "SIBC",
+      "dividende_net": 374,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.99
+    },
+    {
+      "ticker": "NEIC",
+      "dividende_net": 369.6,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 3.15
+    },
+    {
+      "ticker": "PALC",
+      "dividende_net": 441.76,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 5.74
+    },
+    {
+      "ticker": "SPHC",
+      "dividende_net": 430.32,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 6.16
+    },
+    {
+      "ticker": "SOGB",
+      "dividende_net": 501.6,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 6.7
+    },
+    {
+      "ticker": "SDCC",
+      "dividende_net": 462,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.67
+    },
+    {
+      "ticker": "ORGT",
+      "dividende_net": 704,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.65
+    },
+    {
+      "ticker": "AGLC",
+      "dividende_net": null,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 5.26
+    },
+    {
+      "ticker": "SVRC",
+      "dividende_net": 120.97,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.24
+    },
+    {
+      "ticker": "NEDC",
+      "dividende_net": 140.39,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 7.31
+    },
+    {
+      "ticker": "LNBF",
+      "dividende_net": 164,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.21
+    },
+    {
+      "ticker": "TTRC",
+      "dividende_net": 183.92,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.98
+    },
+    {
+      "ticker": "SMBC",
+      "dividende_net": 704,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 5.46
+    },
+    {
+      "ticker": "TTLC",
+      "dividende_net": 139.77,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.8
+    },
+    {
+      "ticker": "TTLS",
+      "dividende_net": 176.79,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 5.88
+    },
+    {
+      "ticker": "STBC",
+      "dividende_net": null,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 9.89
+    },
+    {
+      "ticker": "SLBC",
+      "dividende_net": null,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 2.83
+    },
+    {
+      "ticker": "CIEC",
+      "dividende_net": null,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.81
     }
   ]
 }
