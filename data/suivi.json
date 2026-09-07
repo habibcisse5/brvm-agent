@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-08-31",
+  "derniere_maj": "2026-09-07",
   "actions": [
     {
       "id": "A001",
@@ -256,10 +256,10 @@
     },
     {
       "ticker": "NEIC",
-      "dividende_net": 369.6,
+      "dividende_net": 140.39,
       "ex_div": null,
       "paiement": null,
-      "rendement_pct": 3.15
+      "rendement_pct": 7.31
     },
     {
       "ticker": "PALC",
@@ -372,6 +372,27 @@
       "ex_div": null,
       "paiement": null,
       "rendement_pct": 4.81
+    },
+    {
+      "ticker": "NSLC",
+      "dividende_net": 369.6,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 3.15
+    },
+    {
+      "ticker": "STAC",
+      "dividende_net": null,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 9.89
+    },
+    {
+      "ticker": "NTLB",
+      "dividende_net": 164,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.21
     }
   ]
 }
