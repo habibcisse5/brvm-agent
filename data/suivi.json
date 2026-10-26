@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-10-19",
+  "derniere_maj": "2026-10-26",
   "actions": [
     {
       "id": "A001",
@@ -416,6 +416,34 @@
       "ex_div": "2026-05-22",
       "paiement": "2026-05-25",
       "rendement_pct": 6.02
+    },
+    {
+      "ticker": "SODE",
+      "dividende_net": 462,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.67
+    },
+    {
+      "ticker": "ORAC",
+      "dividende_net": 704,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.65
+    },
+    {
+      "ticker": "LNBC",
+      "dividende_net": 164,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 4.21
+    },
+    {
+      "ticker": "NTLC",
+      "dividende_net": 369.6,
+      "ex_div": null,
+      "paiement": null,
+      "rendement_pct": 3.15
     }
   ]
 }
