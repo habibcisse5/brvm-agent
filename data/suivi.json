@@ -1,5 +1,5 @@
 {
-  "derniere_maj": "2026-10-26",
+  "derniere_maj": "2026-11-02",
   "actions": [
     {
       "id": "A001",
@@ -444,6 +444,13 @@
       "ex_div": null,
       "paiement": null,
       "rendement_pct": 3.15
+    },
+    {
+      "ticker": "ONAB",
+      "dividende_net": 145.32,
+      "ex_div": "2026-06-12",
+      "paiement": "2026-06-15",
+      "rendement_pct": 5.2
     }
   ]
 }
